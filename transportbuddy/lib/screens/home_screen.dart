@@ -5,14 +5,18 @@ import 'schedule_screen.dart';
 import 'my_trips_screen.dart';
 import 'shuttle_qr_scan_screen.dart';
 import 'adhoc_booking_screen.dart';
-import 'my_profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  // =====================================================================
+  // COLORS
+  // =====================================================================
+
   static const Color primaryBlue = Color(0xFF1976B9);
   static const Color logoBlue = Color(0xFF174A68);
   static const Color teal = Color(0xFF18A79B);
+
   static const Color textDark = Color(0xFF171717);
   static const Color pageBackground = Color(0xFFF7F7F7);
   static const Color iconBackground = Color(0xFFEAF4FB);
@@ -23,386 +27,442 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: pageBackground,
 
       body: SafeArea(
-        child: Column(
-          children: [
-            // -----------------------------------------------------------
-            // TOP HEADER
-            // -----------------------------------------------------------
-            _buildTopHeader(),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double screenWidth = constraints.maxWidth;
+            final double horizontalPadding = _getHorizontalPadding(screenWidth);
 
-            // -----------------------------------------------------------
-            // BLUE WELCOME SECTION
-            // -----------------------------------------------------------
-            _buildWelcomeSection(context),
+            return Column(
+              children: [
+                // =========================================================
+                // HEADER
+                // =========================================================
 
-            // -----------------------------------------------------------
-            // CONTENT
-            // -----------------------------------------------------------
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  20,
-                  44,
-                  20,
-                  20,
+                _buildTopHeader(screenWidth),
+
+                // =========================================================
+                // WELCOME BLUE SECTION
+                // =========================================================
+                _buildWelcomeSection(context, screenWidth),
+
+                // =========================================================
+                // MAIN CONTENT
+                // =========================================================
+                Expanded(
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      24,
+                      horizontalPadding,
+                      24,
+                    ),
+                    children: [
+                      _buildHolidayCard(screenWidth),
+
+                      const SizedBox(height: 28),
+
+                      _buildTPinCard(screenWidth),
+
+                      const SizedBox(height: 40),
+                    ],
+                  ),
                 ),
-                children: [
-                  _buildHolidayCard(),
-
-                  const SizedBox(height: 54),
-
-                  _buildTPinCard(),
-                ],
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
 
-      // ---------------------------------------------------------------
+      // ================================================================
       // BOTTOM NAVIGATION
-      // ---------------------------------------------------------------
+      // ================================================================
       bottomNavigationBar: _buildBottomNavigation(context),
     );
   }
 
-  // ===================================================================
-  // TOP HEADER
-  // ===================================================================
+  // =====================================================================
+  // RESPONSIVE PADDING
+  // =====================================================================
 
-  Widget _buildTopHeader() {
+  double _getHorizontalPadding(double width) {
+    if (width <= 350) {
+      return 12;
+    }
+
+    if (width <= 375) {
+      return 16;
+    }
+
+    if (width <= 430) {
+      return 20;
+    }
+
+    return 24;
+  }
+
+  // =====================================================================
+  // TOP HEADER
+  // =====================================================================
+
+  Widget _buildTopHeader(double width) {
+    final bool isSmallPhone = width <= 375;
+
     return Container(
-      height: 104,
+      height: isSmallPhone ? 68 : 76,
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: isSmallPhone ? 12 : 16),
       child: Row(
         children: [
-          // Hamburger
-          const Icon(
-            Icons.menu,
-            color: primaryBlue,
-            size: 44,
-          ),
+          // ---------------------------------------------------------------
+          // MENU
+          // ---------------------------------------------------------------
 
-          const SizedBox(width: 12),
+          Icon(Icons.menu, color: primaryBlue, size: isSmallPhone ? 30 : 34),
 
-          // RouteMatic logo
-          _buildRouteMaticLogo(),
+          SizedBox(width: isSmallPhone ? 6 : 10),
 
-          const Spacer(),
+          // ---------------------------------------------------------------
+          // ROUTEMATIC LOGO
+          // ---------------------------------------------------------------
+          Expanded(child: _buildRouteMaticLogo()),
 
-          // Support
-          const Icon(
+          SizedBox(width: isSmallPhone ? 5 : 10),
+
+          // ---------------------------------------------------------------
+          // SUPPORT
+          // ---------------------------------------------------------------
+          Icon(
             Icons.headset_mic_outlined,
             color: primaryBlue,
-            size: 42,
+            size: isSmallPhone ? 27 : 31,
           ),
 
-          const SizedBox(width: 22),
+          SizedBox(width: isSmallPhone ? 9 : 16),
 
-          // Notification
-          const Icon(
+          // ---------------------------------------------------------------
+          // NOTIFICATION
+          // ---------------------------------------------------------------
+          Icon(
             Icons.notifications,
             color: primaryBlue,
-            size: 42,
+            size: isSmallPhone ? 27 : 31,
           ),
         ],
       ),
     );
   }
 
-  // ===================================================================
+  // =====================================================================
   // ROUTEMATIC LOGO
-  // ===================================================================
+  // =====================================================================
 
   Widget _buildRouteMaticLogo() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Logo mark
-        SizedBox(
-          width: 48,
-          height: 54,
-          child: Stack(
-            children: [
-              Positioned(
-                left: 0,
-                top: 7,
-                child: Container(
-                  width: 28,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: teal,
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(2),
-                      bottomRight: Radius.circular(2),
-                    ),
-                  ),
-                ),
-              ),
-
-              Positioned(
-                left: 8,
-                top: 2,
-                child: Icon(
-                  Icons.play_arrow,
-                  color: logoBlue,
-                  size: 46,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(width: 2),
-
-        RichText(
-          text: const TextSpan(
-            children: [
-              TextSpan(
-                text: 'Route',
-                style: TextStyle(
-                  color: logoBlue,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              TextSpan(
-                text: 'Matic',
-                style: TextStyle(
-                  color: teal,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ===================================================================
-  // WELCOME BLUE SECTION
-  // ===================================================================
-
-  Widget _buildWelcomeSection(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        48,
-        30,
-        30,
-        30,
-      ),
-      decoration: const BoxDecoration(
-        color: primaryBlue,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome text
-          const Text.rich(
-            TextSpan(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          width: constraints.maxWidth,
+          child: FittedBox(
+            alignment: Alignment.centerLeft,
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                TextSpan(
-                  text: 'Welcome ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w400,
-                  ),
+                // ---------------------------------------------------------
+                // ACTUAL ROUTEMATIC LOGO
+                // ---------------------------------------------------------
+
+                Image.asset(
+                  'assets/images/remove_icon.png',
+                  width: 38,
+                  height: 42,
+                  fit: BoxFit.contain,
                 ),
-                TextSpan(
-                  text: 'Debendra',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w400,
+
+                const SizedBox(width: 5),
+
+                // ---------------------------------------------------------
+                // ROUTEMATIC TEXT
+                // ---------------------------------------------------------
+                RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Route',
+                        style: TextStyle(
+                          color: logoBlue,
+                          fontSize: 25,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'Matic',
+                        style: TextStyle(
+                          color: teal,
+                          fontSize: 25,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-
-          const SizedBox(height: 42),
-
-          // Four quick links
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _quickLink(
-                icon: Icons.person,
-                label: 'My Profile',
-                onTap: () {
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const MyProfileScreen(),
-                  ),
-                );
-                },
-              ),
-
-              _quickLink(
-                icon: Icons.bar_chart,
-                label: 'My Stats',
-                onTap: () {},
-              ),
-
-              _quickLink(
-                icon: Icons.badge_outlined,
-                label: 'e-Pass',
-                onTap: () {},
-              ),
-
-              _quickLink(
-                icon: Icons.directions_car,
-                label: 'My Trips',
-                onTap: () {
-                  // Navigate to My Trips
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const MyTripsScreen(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  // ===================================================================
-  // QUICK LINK
-  // ===================================================================
+  
+  // =====================================================================
+  // WELCOME SECTION
+  // =====================================================================
 
-  Widget _quickLink({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 88,
-            height: 88,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Icon(
-              icon,
-              color: primaryBlue,
-              size: 48,
-            ),
-          ),
+  Widget _buildWelcomeSection(BuildContext context, double width) {
+    final bool isSmallPhone = width <= 375;
 
-          const SizedBox(height: 10),
-
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 17,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ===================================================================
-  // HOLIDAY DECLARATION CARD
-  // ===================================================================
-
-  Widget _buildHolidayCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        28,
-        30,
-        28,
-        24,
+      padding: EdgeInsets.fromLTRB(
+        isSmallPhone ? 18 : 28,
+        isSmallPhone ? 22 : 28,
+        isSmallPhone ? 18 : 28,
+        isSmallPhone ? 24 : 30,
       ),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF8F5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFF9BD8CB),
-          width: 2,
+      decoration: const BoxDecoration(
+        color: primaryBlue,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(26),
+          bottomRight: Radius.circular(26),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          // ---------------------------------------------------------------
+          // WELCOME TEXT
+          // ---------------------------------------------------------------
+
+          Text(
+            'Welcome Debendra',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: isSmallPhone ? 25 : 28,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+
+          SizedBox(height: isSmallPhone ? 28 : 38),
+
+          // ---------------------------------------------------------------
+          // QUICK LINKS
+          //
+          // IMPORTANT:
+          // Expanded makes the four items automatically fit 360px.
+          // ---------------------------------------------------------------
           Row(
             children: [
-              const Expanded(
+              Expanded(
+                child: _quickLink(
+                  icon: Icons.person,
+                  label: 'My Profile',
+                  isSmallPhone: isSmallPhone,
+                  onTap: () {},
+                ),
+              ),
+
+              Expanded(
+                child: _quickLink(
+                  icon: Icons.bar_chart,
+                  label: 'My Stats',
+                  isSmallPhone: isSmallPhone,
+                  onTap: () {},
+                ),
+              ),
+
+              Expanded(
+                child: _quickLink(
+                  icon: Icons.badge_outlined,
+                  label: 'e-Pass',
+                  isSmallPhone: isSmallPhone,
+                  onTap: () {},
+                ),
+              ),
+
+              Expanded(
+                child: _quickLink(
+                  icon: Icons.directions_car,
+                  label: 'My Trips',
+                  isSmallPhone: isSmallPhone,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MyTripsScreen()),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =====================================================================
+  // QUICK LINK
+  // =====================================================================
+
+  Widget _quickLink({
+    required IconData icon,
+    required String label,
+    required bool isSmallPhone,
+    required VoidCallback onTap,
+  }) {
+    final double tileSize = isSmallPhone ? 60 : 72;
+    final double iconSize = isSmallPhone ? 34 : 40;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ---------------------------------------------------------------
+          // ICON TILE
+          // ---------------------------------------------------------------
+
+          Container(
+            width: tileSize,
+            height: tileSize,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(isSmallPhone ? 13 : 15),
+            ),
+            child: Icon(icon, color: primaryBlue, size: iconSize),
+          ),
+
+          const SizedBox(height: 7),
+
+          // ---------------------------------------------------------------
+          // LABEL
+          // ---------------------------------------------------------------
+          SizedBox(
+            height: 20,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: isSmallPhone ? 14 : 16,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =====================================================================
+  // HOLIDAY DECLARATION CARD
+  // =====================================================================
+
+  Widget _buildHolidayCard(double width) {
+    final bool isSmallPhone = width <= 375;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(
+        isSmallPhone ? 18 : 24,
+        isSmallPhone ? 20 : 26,
+        isSmallPhone ? 18 : 24,
+        isSmallPhone ? 18 : 22,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF8F5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF9BD8CB), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ---------------------------------------------------------------
+          // CARD HEADER
+          // ---------------------------------------------------------------
+
+          Row(
+            children: [
+              Expanded(
                 child: Text(
                   'Holiday Declaration',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: textDark,
-                    fontSize: 24,
+                    fontSize: isSmallPhone ? 19 : 22,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
 
+              const SizedBox(width: 8),
+
               Container(
-                width: 48,
-                height: 48,
+                width: isSmallPhone ? 38 : 42,
+                height: isSmallPhone ? 38 : 42,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.volume_up,
                   color: primaryBlue,
-                  size: 27,
+                  size: isSmallPhone ? 21 : 24,
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: isSmallPhone ? 14 : 18),
 
-          // Description
-          const Text(
+          // ---------------------------------------------------------------
+          // DESCRIPTION
+          // ---------------------------------------------------------------
+          Text(
             'This is to inform you in advance that our office will be '
             'closed from 1st Sep 2024 to 3rd Sep 2024. Our team will '
             'be taking this time off to spend the wonderful holiday '
             'season with their families and friends. Duri...',
+            maxLines: isSmallPhone ? 5 : 6,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: textDark,
-              fontSize: 19,
-              height: 1.5,
+              fontSize: isSmallPhone ? 15 : 18,
+              height: 1.45,
             ),
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 10),
 
-          // More
+          // ---------------------------------------------------------------
+          // MORE BUTTON
+          // ---------------------------------------------------------------
           Align(
             alignment: Alignment.centerRight,
             child: GestureDetector(
               onTap: () {},
-              child: const Text(
+              child: Text(
                 'More >>',
                 style: TextStyle(
                   color: primaryBlue,
-                  fontSize: 20,
+                  fontSize: isSmallPhone ? 16 : 18,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -413,49 +473,58 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ===================================================================
+  // =====================================================================
   // T-PIN CARD
-  // ===================================================================
+  // =====================================================================
 
-  Widget _buildTPinCard() {
+  Widget _buildTPinCard(double width) {
+    final bool isSmallPhone = width <= 375;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        28,
-        30,
-        28,
-        32,
+      padding: EdgeInsets.fromLTRB(
+        isSmallPhone ? 18 : 24,
+        isSmallPhone ? 20 : 26,
+        isSmallPhone ? 18 : 24,
+        isSmallPhone ? 24 : 30,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.07),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ---------------------------------------------------------------
+          // TITLE
+          // ---------------------------------------------------------------
+
           Text(
             'Where to Find your T-PIN',
             style: TextStyle(
               color: textDark,
-              fontSize: 24,
+              fontSize: isSmallPhone ? 19 : 22,
               fontWeight: FontWeight.w700,
             ),
           ),
 
-          SizedBox(height: 22),
+          SizedBox(height: isSmallPhone ? 14 : 20),
 
+          // ---------------------------------------------------------------
+          // DESCRIPTION
+          // ---------------------------------------------------------------
           Text(
             'You can view and change your T-PIN under your profile',
             style: TextStyle(
               color: textDark,
-              fontSize: 19,
+              fontSize: isSmallPhone ? 15 : 18,
               height: 1.4,
             ),
           ),
@@ -464,74 +533,87 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ===================================================================
+  // =====================================================================
   // BOTTOM NAVIGATION
-  // ===================================================================
+  // =====================================================================
 
   Widget _buildBottomNavigation(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(
-        20,
-        18,
-        20,
-        18,
-      ),
+      padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
       child: SafeArea(
         top: false,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _bottomNavItem(
-              icon: Icons.calendar_month,
-              label: 'Roster',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CreateRosterScreen(),
-                  ),
-                );
-              },
+            // -------------------------------------------------------------
+            // ROSTER
+            // -------------------------------------------------------------
+
+            Expanded(
+              child: _bottomNavItem(
+                icon: Icons.calendar_month,
+                label: 'Roster',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CreateRosterScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
 
-            _bottomNavItem(
-              icon: Icons.directions_walk,
-              label: 'Adhoc',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AdhocBookingScreen(),
-                  ),
-                );
-              },
+            // -------------------------------------------------------------
+            // ADHOC
+            // -------------------------------------------------------------
+            Expanded(
+              child: _bottomNavItem(
+                icon: Icons.directions_walk,
+                label: 'Adhoc',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AdhocBookingScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
 
-            _bottomNavItem(
-              icon: Icons.directions_bus,
-              label: 'Bus',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ScheduleScreen(),
-                  ),
-                );
-              },
+            // -------------------------------------------------------------
+            // BUS
+            // -------------------------------------------------------------
+            Expanded(
+              child: _bottomNavItem(
+                icon: Icons.directions_bus,
+                label: 'Bus',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ScheduleScreen()),
+                  );
+                },
+              ),
             ),
 
-            _bottomNavItem(
-              icon: Icons.airport_shuttle,
-              label: 'Shuttle',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ShuttleQrScanScreen(),
-                  ),
-                );
-              },
+            // -------------------------------------------------------------
+            // SHUTTLE
+            // -------------------------------------------------------------
+            Expanded(
+              child: _bottomNavItem(
+                icon: Icons.airport_shuttle,
+                label: 'Shuttle',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ShuttleQrScanScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -539,9 +621,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ===================================================================
+  // =====================================================================
   // BOTTOM NAV ITEM
-  // ===================================================================
+  // =====================================================================
 
   Widget _bottomNavItem({
     required IconData icon,
@@ -550,41 +632,41 @@ class HomeScreen extends StatelessWidget {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        width: 90,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 76,
-              height: 76,
-              decoration: BoxDecoration(
-                color: iconBackground,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFE1E8ED),
-                  width: 1,
-                ),
-              ),
-              child: Icon(
-                icon,
-                color: primaryBlue,
-                size: 45,
-              ),
-            ),
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ---------------------------------------------------------------
+          // ICON TILE
+          // ---------------------------------------------------------------
 
-            const SizedBox(height: 8),
-
-            Text(
-              label,
-              style: const TextStyle(
-                color: Color(0xFF444444),
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-              ),
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: iconBackground,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE1E8ED), width: 1),
             ),
-          ],
-        ),
+            child: Icon(icon, color: primaryBlue, size: 36),
+          ),
+
+          const SizedBox(height: 5),
+
+          // ---------------------------------------------------------------
+          // LABEL
+          // ---------------------------------------------------------------
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xFF444444),
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
       ),
     );
   }
