@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+import 'email_screen.dart';
 
 /// Shown when tapping "My Profile" on the home screen.
-/// Displays the signed-in user's basic details. Right now the values are
-/// hardcoded — see the TODO below for wiring it to a real user object /
-/// API response instead.
+/// Displays the signed-in user's basic details, plus a Logout button
+/// that clears the session token and returns to the login flow.
 class MyProfileScreen extends StatelessWidget {
   const MyProfileScreen({super.key});
 
@@ -34,6 +35,8 @@ class MyProfileScreen extends StatelessWidget {
           _buildAvatarHeader(),
           const SizedBox(height: 24),
           _buildInfoCard(),
+          const SizedBox(height: 24),
+          _buildLogoutButton(context),
         ],
       ),
     );
@@ -127,6 +130,57 @@ class MyProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Logout button + confirmation dialog, wired to AuthService.
+  // ---------------------------------------------------------------------
+  Widget _buildLogoutButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton.icon(
+        onPressed: () => _logout(context),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Colors.red),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        icon: const Icon(Icons.logout, color: Colors.red),
+        label: const Text('Log out', style: TextStyle(color: Colors.red, fontSize: 16)),
+      ),
+    );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Log out?'),
+        content: const Text('You will need to sign in again next time.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Log out'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    // Clears the stored token, so next app launch goes back to EmailScreen.
+    await AuthService.logout();
+
+    if (!context.mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const EmailScreen()),
+      (route) => false,
     );
   }
 }

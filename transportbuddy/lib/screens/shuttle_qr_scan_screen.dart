@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-
 import '../models/shuttle_route_screen.dart';
 
 class ShuttleQrScanScreen extends StatefulWidget {

@@ -5,6 +5,7 @@ import 'schedule_screen.dart';
 import 'my_trips_screen.dart';
 import 'shuttle_qr_scan_screen.dart';
 import 'adhoc_booking_screen.dart';
+import 'my_profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -59,11 +60,8 @@ class HomeScreen extends StatelessWidget {
                     ),
                     children: [
                       _buildHolidayCard(screenWidth),
-
                       const SizedBox(height: 28),
-
                       _buildTPinCard(screenWidth),
-
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -214,7 +212,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  
   // =====================================================================
   // WELCOME SECTION
   // =====================================================================
@@ -270,10 +267,15 @@ class HomeScreen extends StatelessWidget {
                   icon: Icons.person,
                   label: 'My Profile',
                   isSmallPhone: isSmallPhone,
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const MyProfileScreen()),
+                    );
+                  },
                 ),
               ),
-
               Expanded(
                 child: _quickLink(
                   icon: Icons.bar_chart,
@@ -282,7 +284,6 @@ class HomeScreen extends StatelessWidget {
                   onTap: () {},
                 ),
               ),
-
               Expanded(
                 child: _quickLink(
                   icon: Icons.badge_outlined,
@@ -291,7 +292,6 @@ class HomeScreen extends StatelessWidget {
                   onTap: () {},
                 ),
               ),
-
               Expanded(
                 child: _quickLink(
                   icon: Icons.directions_car,
@@ -411,9 +411,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(width: 8),
-
               Container(
                 width: isSmallPhone ? 38 : 42,
                 height: isSmallPhone ? 38 : 42,

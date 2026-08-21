@@ -7,7 +7,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.14.0-142.0.dev
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -16,6 +16,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   mobile_scanner: ^7.4.0
   permission_handler: ^11.3.1
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:
@@ -23,6 +24,12 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+
+dependency_overrides:
+  mobile_scanner:
+    git:
+      url: https://github.com/juliansteenbakker/mobile_scanner.git
+      ref: master
 
 flutter:
   uses-material-design: true
